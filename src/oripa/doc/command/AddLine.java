@@ -116,11 +116,14 @@ public class AddLine {
 		}
 		else{   
 			
-			PartialCollectionProcessFactory<OriLine, Vector2d> factory = 
+			PartialCollectionProcessFactory<OriLine, Collection<Vector2d>> factory = 
 					new CrossPointProcessFactory(inputLine);
-			ListParallelProcessor<OriLine, Vector2d> processor = new ListParallelProcessor<>(factory);
+			ListParallelProcessor<OriLine, Collection<Vector2d>> processor = new ListParallelProcessor<>(factory);
 			try {
-				points = processor.execute(currentLines, 4);
+				points = new ArrayList<>(currentLines.size());
+				for(Collection<Vector2d> crossPoints : processor.execute(currentLines, 4) ){
+					points.addAll(crossPoints);
+				}
 			} catch (IllegalAccessException	| InterruptedException | ExecutionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -152,7 +155,7 @@ public class AddLine {
 
 	}
 	
-	private class CrossPointProcessFactory implements PartialCollectionProcessFactory<OriLine, Vector2d> {
+	private class CrossPointProcessFactory implements PartialCollectionProcessFactory<OriLine, Collection<Vector2d>> {
 		private OriLine inputLine;
 		
 		public CrossPointProcessFactory(OriLine line) {
@@ -160,12 +163,12 @@ public class AddLine {
 		}
 		
 		@Override
-		public PartialCollectionProcess<OriLine, Vector2d> create() {
+		public PartialCollectionProcess<OriLine, Collection<Vector2d>> create() {
 			return new CrossPointProcess(inputLine);
 		}
 	}
 	
-	private class CrossPointProcess extends PartialCollectionProcess<OriLine, Vector2d> {
+	private class CrossPointProcess extends PartialCollectionProcess<OriLine, Collection<Vector2d>> {
 
 		OriLine inputLine;
 		

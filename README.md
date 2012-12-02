@@ -4,7 +4,7 @@ ORIPA S
 A great drawer ORIPA is originally composed by MITANI Jun for origami crease pattern.
 "ORIPA S" fixes some bugs and provides function of saving as image.
 
-Executable file(latest): https://dl.dropbox.com/u/45296904/oripaS.jar
+Executable file(latest, unstable): https://github.com/downloads/Ooouch1/oripas_test/oripaS.jar
 Executable file(old): https://dl.dropbox.com/u/45296904/oripaS1_24.jar
 
 

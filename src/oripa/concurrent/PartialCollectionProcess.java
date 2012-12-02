@@ -15,7 +15,7 @@ public abstract class PartialCollectionProcess<Value, Output>{
 	 * @param values
 	 * @return result of processing
 	 */
-	public abstract Collection<Output> run(Collection<Value> values);
+	public abstract Output run(Collection<Value> values);
 	
 	public final void setValues(Collection<Value> values){
 		this.values = values;
@@ -35,12 +35,12 @@ public abstract class PartialCollectionProcess<Value, Output>{
 		};
 	}
 	
-	public final Callable<Collection<Output>> getCallable(Collection<Value> values){
+	public final Callable<Output> getCallable(Collection<Value> values){
 		setValues(values);
 		
-		return new Callable<Collection<Output>>() {
+		return new Callable<Output>() {
 			@Override
-			public Collection<Output> call() throws Exception {
+			public Output call() throws Exception {
 				Collection<Value> v = PartialCollectionProcess.this.values;
 				return PartialCollectionProcess.this.run(v);
 			}

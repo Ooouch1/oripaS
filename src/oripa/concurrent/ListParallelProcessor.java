@@ -43,7 +43,7 @@ public class ListParallelProcessor<Value, Output> {
 		// separate given array for concurrent processing
 		ArrayList<Collection<Value>> valueSets = separate(values, divNum);
 		ExecutorService executor = Executors.newFixedThreadPool(valueSets.size());
-		CompletionService<Collection<Output>> completion = new ExecutorCompletionService<>(executor);
+		CompletionService<Output> completion = new ExecutorCompletionService<>(executor);
 
 
 		try{
@@ -52,9 +52,9 @@ public class ListParallelProcessor<Value, Output> {
 			}
 
 			for(int i = 0; i < divNum; i++){
-				Future<Collection<Output>> future = completion.take(); // take result of the finished process as soon as possible
-				Collection<Output> processed = future.get();
-				result.addAll(processed);
+				// take the result of the finished process as soon as possible
+				Output processed = completion.take().get();
+				result.add(processed);
 			}
 		}
 		catch (Exception e) {
