@@ -101,7 +101,9 @@ public class AddLine {
 	public void addLine(OriLine inputLine, List<OriLine> currentLines) {
 		//ArrayList<OriLine> crossingLines = new ArrayList<OriLine>(); // for debug? 
 
-		ArrayList<Vector2d> points = null;
+		ArrayList<Vector2d> points = new ArrayList<>(currentLines.size());
+		points.add(inputLine.p0);
+		points.add(inputLine.p1);
 
 		// If it already exists, do nothing
 		for (OriLine line : currentLines) {
@@ -116,11 +118,12 @@ public class AddLine {
 		}
 		else{   
 			
-			PartialCollectionProcessFactory<OriLine, Collection<Vector2d>> factory = 
-					new CrossPointProcessFactory(inputLine);
+			PartialCollectionProcessFactory<OriLine, Collection<Vector2d>> 
+					factory = new CrossPointProcessFactory(inputLine);
+
 			ListParallelProcessor<OriLine, Collection<Vector2d>> processor = new ListParallelProcessor<>(factory);
+
 			try {
-				points = new ArrayList<>(currentLines.size());
 				for(Collection<Vector2d> crossPoints : processor.execute(currentLines, 4) ){
 					points.addAll(crossPoints);
 				}
