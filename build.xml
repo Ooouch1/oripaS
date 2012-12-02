@@ -5,19 +5,21 @@
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. --><project basedir="." default="build" name="oripas">
     <property environment="env"/>
+    <property name="oripas_test.location" value="../oripas_test"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
+    <path id="JUnit 4.libraryclasspath">
+        <pathelement location="c:/eclipse/plugins/org.junit_4.8.2.v4_8_2_v20110321-1705/junit.jar"/>
+        <pathelement location="c:/eclipse/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
+    </path>
     <path id="oripas.classpath">
         <pathelement location="bin"/>
-        <pathelement location="../../../../../Program Files/Java/Java3D/1.5.2/lib/ext/j3dcore.jar"/>
-        <pathelement location="../../../../../Program Files/Java/Java3D/1.5.2/lib/ext/j3dutils.jar"/>
-        <pathelement location="../../../../../Program Files/Java/Java3D/1.5.2/lib/ext/vecmath.jar"/>
+        <pathelement location="c:/Program Files/Java/Java3D/1.5.2/lib/ext/j3dcore.jar"/>
+        <pathelement location="c:/Program Files/Java/Java3D/1.5.2/lib/ext/j3dutils.jar"/>
+        <pathelement location="c:/Program Files/Java/Java3D/1.5.2/lib/ext/vecmath.jar"/>
+        <path refid="JUnit 4.libraryclasspath"/>
     </path>
-    <path id="run.ORIPA.classpath">
-        <path refid="oripas.classpath"/>
-    </path>
-    <path id="run.ORIPA.bootclasspath"/>
     <target name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
@@ -26,10 +28,12 @@
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
+    	
     	<mkdir dir="bin/resource"/>
         <copy todir="bin/resource">
             <fileset dir="resource"/>
         </copy>
+
     </target>
     <target name="clean">
         <delete dir="bin"/>
@@ -44,7 +48,14 @@
             <classpath refid="oripas.classpath"/>
         </javac>
     </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+        <ant antfile="build.xml" dir="${oripas_test.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${oripas_test.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
     <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
         <copy todir="${ant.library.dir}">
             <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
@@ -60,10 +71,7 @@
     </target>
     <target name="ORIPA">
         <java classname="oripa.ORIPA" failonerror="true" fork="yes">
-            <classpath refid="run.ORIPA.classpath"/>
-            <bootclasspath>
-                <path refid="run.ORIPA.bootclasspath"/>
-            </bootclasspath>
+            <classpath refid="oripas.classpath"/>
         </java>
     </target>
 </project>

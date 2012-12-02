@@ -3,7 +3,6 @@ package oripa.paint;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Stack;
 
 import javax.vecmath.Vector2d;

@@ -23,16 +23,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedList;
 
 import javax.swing.JOptionPane;
 import javax.vecmath.Vector2d;
 
 import oripa.ORIPA;
 import oripa.doc.command.AddLine;
+import oripa.doc.command.CalculationResource;
+import oripa.doc.command.LineTypeChanger;
 import oripa.doc.command.PasteLines;
 import oripa.doc.command.RemoveElement;
+import oripa.doc.command.TypeForChange;
 import oripa.doc.core.CreasePattern;
 import oripa.folder.Folder;
 import oripa.geom.GeomUtil;

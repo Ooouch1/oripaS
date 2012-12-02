@@ -1,6 +1,6 @@
 package oripa.viewsetting.uipanel;
 
-import oripa.doc.TypeForChange;
+import oripa.doc.command.TypeForChange;
 import oripa.paint.EditMode;
 import oripa.viewsetting.ViewSettingDataBase;
 

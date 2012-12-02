@@ -4,7 +4,6 @@ import java.awt.geom.AffineTransform;
 
 import oripa.paint.BasicUndo;
 import oripa.paint.EditMode;
-import oripa.paint.GraphicMouseAction;
 import oripa.paint.PaintContext;
 import oripa.paint.selectline.SelectLineAction;
 

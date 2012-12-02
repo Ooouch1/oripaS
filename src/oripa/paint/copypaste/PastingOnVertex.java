@@ -1,13 +1,10 @@
 package oripa.paint.copypaste;
 
 import java.awt.geom.Point2D.Double;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import javax.vecmath.Vector2d;
 
 import oripa.ORIPA;
-import oripa.geom.OriLine;
 import oripa.paint.PaintContext;
 import oripa.paint.PickingVertex;
 import oripa.paint.geometry.GeometricOperation;

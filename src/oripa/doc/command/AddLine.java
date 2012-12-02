@@ -6,10 +6,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.vecmath.Vector2d;
 
-import oripa.doc.CalculationResource;
+import oripa.concurrent.ListParallelProcessor;
+import oripa.concurrent.PartialCollectionProcess;
+import oripa.concurrent.PartialCollectionProcessFactory;
 import oripa.geom.GeomUtil;
 import oripa.geom.OriLine;
 
@@ -56,7 +60,7 @@ public class AddLine {
 			OriLine line = iterator.next();
 
 
-			// Inputted line does not intersect
+			// Inputed line does not intersect
 			if (line.typeVal != OriLine.TYPE_NONE) {
 				continue;
 			}
@@ -94,12 +98,10 @@ public class AddLine {
 	 * 						new lines are added and unnecessary lines are removed.
 	 */
 
-	public void addLine(OriLine inputLine, Collection<OriLine> currentLines) {
+	public void addLine(OriLine inputLine, List<OriLine> currentLines) {
 		//ArrayList<OriLine> crossingLines = new ArrayList<OriLine>(); // for debug? 
 
-		ArrayList<Vector2d> points = new ArrayList<Vector2d>();
-		points.add(inputLine.p0);
-		points.add(inputLine.p1);
+		ArrayList<Vector2d> points = null;
 
 		// If it already exists, do nothing
 		for (OriLine line : currentLines) {
@@ -113,37 +115,19 @@ public class AddLine {
 			addAuxLine(inputLine, currentLines);
 		}
 		else{   
-			for (OriLine line : currentLines) {
-
-				// Dont devide if the type of line is aux is Aux
-				if (//inputLine.typeVal != OriLine.TYPE_NONE && 
-						line.typeVal == OriLine.TYPE_NONE) {
-					continue;
-				}
-
-				// If the intersection is on the end of the line, skip
-				if (GeomUtil.Distance(inputLine.p0, line.p0) < CalculationResource.POINT_EPS ||
-						GeomUtil.Distance(inputLine.p0, line.p1) < CalculationResource.POINT_EPS||
-						GeomUtil.Distance(inputLine.p1, line.p0) < CalculationResource.POINT_EPS||
-						GeomUtil.Distance(inputLine.p1, line.p1) < CalculationResource.POINT_EPS) {
-					continue;
-				}
-
-				if (GeomUtil.DistancePointToSegment(line.p0, inputLine.p0, inputLine.p1) < CalculationResource.POINT_EPS) {
-					points.add(line.p0);
-				}
-				if (GeomUtil.DistancePointToSegment(line.p1, inputLine.p0, inputLine.p1) < CalculationResource.POINT_EPS) {
-					points.add(line.p1);
-				}
-
-				// Calculates the intersection
-				Vector2d crossPoint = GeomUtil.getCrossPoint(inputLine, line);
-				if (crossPoint != null) {
-					points.add(crossPoint);
-				}
-
+			
+			PartialCollectionProcessFactory<OriLine, Vector2d> factory = 
+					new CrossPointProcessFactory(inputLine);
+			ListParallelProcessor<OriLine, Vector2d> processor = new ListParallelProcessor<>(factory);
+			try {
+				points = processor.execute(currentLines, 4);
+			} catch (IllegalAccessException	| InterruptedException | ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
 			}
 		}
+		
 		// the sort is done on longer direction in order to suppress underflow error???
 		boolean sortByX = Math.abs(inputLine.p0.x - inputLine.p1.x) > Math.abs(inputLine.p0.y - inputLine.p1.y);
 		if (sortByX) {
@@ -167,5 +151,75 @@ public class AddLine {
 		}
 
 	}
+	
+	private class CrossPointProcessFactory implements PartialCollectionProcessFactory<OriLine, Vector2d> {
+		private OriLine inputLine;
+		
+		public CrossPointProcessFactory(OriLine line) {
+			inputLine = line;
+		}
+		
+		@Override
+		public PartialCollectionProcess<OriLine, Vector2d> create() {
+			return new CrossPointProcess(inputLine);
+		}
+	}
+	
+	private class CrossPointProcess extends PartialCollectionProcess<OriLine, Vector2d> {
+
+		OriLine inputLine;
+		
+		public CrossPointProcess(OriLine inputLine) {
+			super();
+			this.inputLine = inputLine;
+		}
+				
+		@Override
+		public Collection<Vector2d> run(Collection<OriLine> values) {
+			return createCrossPointList(inputLine, values);
+		}
+	}
+	
+	private ArrayList<Vector2d> createCrossPointList(OriLine inputLine, Collection<OriLine> lines){
+		ArrayList<Vector2d> points = new ArrayList<>();
+
+		points.add(inputLine.p0);
+		points.add(inputLine.p1);
+
+		for (OriLine line : lines) {
+
+			// Dont devide if the type of line is aux is Aux
+			if (//inputLine.typeVal != OriLine.TYPE_NONE && 
+					line.typeVal == OriLine.TYPE_NONE) {
+				continue;
+			}
+
+			// If the intersection is on the end of the line, skip
+			if (GeomUtil.Distance(inputLine.p0, line.p0) < CalculationResource.POINT_EPS ||
+					GeomUtil.Distance(inputLine.p0, line.p1) < CalculationResource.POINT_EPS||
+					GeomUtil.Distance(inputLine.p1, line.p0) < CalculationResource.POINT_EPS||
+					GeomUtil.Distance(inputLine.p1, line.p1) < CalculationResource.POINT_EPS) {
+				continue;
+			}
+
+			if (GeomUtil.DistancePointToSegment(line.p0, inputLine.p0, inputLine.p1) < CalculationResource.POINT_EPS) {
+				points.add(line.p0);
+			}
+			if (GeomUtil.DistancePointToSegment(line.p1, inputLine.p0, inputLine.p1) < CalculationResource.POINT_EPS) {
+				points.add(line.p1);
+			}
+
+			// Calculates the intersection
+			Vector2d crossPoint = GeomUtil.getCrossPoint(inputLine, line);
+			if (crossPoint != null) {
+				points.add(crossPoint);
+			}
+
+		}
+		
+		return points;
+	}
+
+	
 
 }

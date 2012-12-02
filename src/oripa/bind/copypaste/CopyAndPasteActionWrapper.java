@@ -5,7 +5,6 @@ import java.awt.geom.AffineTransform;
 import oripa.ORIPA;
 import oripa.appstate.ApplicationState;
 import oripa.appstate.StateManager;
-import oripa.geom.OriLine;
 import oripa.paint.EditMode;
 import oripa.paint.PaintContext;
 import oripa.paint.copypaste.CopyAndPasteAction;

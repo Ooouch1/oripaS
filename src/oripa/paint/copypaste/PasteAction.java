@@ -2,28 +2,28 @@ package oripa.paint.copypaste;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.awt.image.BufferedImage;
 
 import javax.vecmath.Vector2d;
 
 import oripa.ORIPA;
+import oripa.doc.command.Domain;
 import oripa.geom.OriLine;
 import oripa.paint.EditMode;
 import oripa.paint.GraphicMouseAction;
 import oripa.paint.PaintContext;
 import oripa.paint.geometry.GeometricOperation;
-import oripa.paint.geometry.NearestPoint;
 import oripa.paint.geometry.NearestVertexFinder;
 
 public class PasteAction extends GraphicMouseAction {
 
 
+	private Image linesImage;
+	
 	private FilledOriLineArrayList shiftedLines = new FilledOriLineArrayList(0);
 
 	private OriginHolder originHolder = OriginHolder.getInstance();
@@ -53,8 +53,34 @@ public class PasteAction extends GraphicMouseAction {
 
 		shiftedLines = new FilledOriLineArrayList(context.getLines());
 
+		//createImage(context);
 	}
 
+	private void updateImage(PaintContext context){
+		Domain domain = new Domain(context.getLines());
+		
+		linesImage = new BufferedImage(
+				(int)Math.ceil(domain.right - domain.left), 
+				(int)Math.ceil(domain.bottom - domain.top), 
+				BufferedImage.TYPE_4BYTE_ABGR);
+		
+		Graphics2D g2d = (Graphics2D)linesImage.getGraphics();
+
+		
+		Vector2d origin = originHolder.getOrigin(context);
+		double ox = origin.x;
+		double oy = origin.y;
+		
+		g2d.setColor(Color.MAGENTA);
+
+		GeometricOperation.shiftLines(context.getLines(), shiftedLines,
+				- ox, -oy);
+		
+		for(OriLine line : shiftedLines){
+			this.drawLine(g2d, line);
+		}
+		
+	}
 
 
 	/**
@@ -149,15 +175,10 @@ public class PasteAction extends GraphicMouseAction {
 			diffX = context.getLogicalMousePoint().x - ox;
 			diffY = context.getLogicalMousePoint().y -oy;
 		}
+
+		
+		
 		g2d.setColor(Color.MAGENTA);
-
-		//		GeometricOperation.shiftLines(context.getLines(), shiftedLines,
-		//				current.x - ox, current.y -oy);
-		//		
-		//		for(OriLine line : shiftedLines){
-		//			this.drawLine(g2d, line);
-		//		}
-
 		// a little faster
 		for(OriLine l : context.getLines()){
 
@@ -172,6 +193,8 @@ public class PasteAction extends GraphicMouseAction {
 
 	}
 
+	
+	
 	@Override
 	public void onPress(PaintContext context, AffineTransform affine,
 			boolean differentAction) {

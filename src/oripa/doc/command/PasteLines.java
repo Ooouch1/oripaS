@@ -1,61 +1,14 @@
 package oripa.doc.command;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
-
-import javax.vecmath.Vector2d;
+import java.util.List;
 
 import oripa.geom.OriLine;
 
 public class PasteLines {
 
-	/**
-	 * A rectangle domain
-	 */
-	private class Domain{
-		double left, right, top, bottom;
-
-		/**
-		 * reset variables by the most opposite value.
-		 */
-		public Domain() {
-			initialize();
-		}
-
-		/**
-		 * A rectangle domain fitting to given lines
-		 * @param target
-		 */
-		public Domain(Collection<OriLine> target){
-
-			initialize();
-						
-			for(OriLine line : target){
-				enlargeDomain(this, line.p0);
-				enlargeDomain(this, line.p1);
-			}
-			
-		}
-
-		private void initialize(){
-			left = Double.MAX_VALUE;
-			right = Double.MIN_VALUE;
-			top = Double.MAX_VALUE;
-			bottom = Double.MIN_VALUE;
-
-		}
-		
-		public void enlargeDomain(Domain domain, Vector2d v){
-			domain.left = Math.min(domain.left, v.x);
-			domain.right = Math.max(domain.right, v.x);
-			domain.top = Math.min(domain.top, v.y);
-			domain.bottom = Math.max(domain.bottom, v.y);
-			
-		}
-		
-}
-	
 	/**
 	 * 
 	 * @param toBePasted	lines to be added into current lines.
@@ -71,7 +24,7 @@ public class PasteLines {
 		//----------------------------------------------------------
 		
 		Domain domain = new Domain(toBePasted);
-		LinkedList<OriLine> crossables = new LinkedList<>();
+		List<OriLine> crossables = new ArrayList<>(currentLines.size());
 				
 		for(Iterator<OriLine> itrator = currentLines.iterator();
 				itrator.hasNext();){

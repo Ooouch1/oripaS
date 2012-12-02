@@ -3,12 +3,11 @@ package oripa.paint.geometry;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 
 import javax.vecmath.Vector2d;
 
 import oripa.ORIPA;
-import oripa.doc.CalculationResource;
+import oripa.doc.command.CalculationResource;
 import oripa.geom.GeomUtil;
 import oripa.geom.OriLine;
 import oripa.paint.PaintContext;

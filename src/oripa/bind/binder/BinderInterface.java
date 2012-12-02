@@ -1,7 +1,5 @@
 package oripa.bind.binder;
 
-import java.awt.event.ActionListener;
-
 import javax.swing.AbstractButton;
 
 public interface BinderInterface<ToBeBound> {

@@ -3,13 +3,14 @@ package oripa.doc.core;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 
 import javax.vecmath.Vector2d;
 
 import oripa.geom.OriLine;
 
-public class CreasePattern implements Collection<OriLine> {
+public class CreasePattern implements List<OriLine> {
 	
 
 	/**
@@ -17,7 +18,66 @@ public class CreasePattern implements Collection<OriLine> {
 	 */
 	private static final long serialVersionUID = -6919017534440930379L;
 
-	private LinkedList<OriLine> lines;
+	private List<OriLine> lines;
+	public boolean addAll(int index, Collection<? extends OriLine> c) {
+		return lines.addAll(index, c);
+	}
+
+
+	public boolean equals(Object o) {
+		return lines.equals(o);
+	}
+
+
+	public int hashCode() {
+		return lines.hashCode();
+	}
+
+
+	public OriLine get(int index) {
+		return lines.get(index);
+	}
+
+
+	public OriLine set(int index, OriLine element) {
+		return lines.set(index, element);
+	}
+
+
+	public void add(int index, OriLine element) {
+		lines.add(index, element);
+	}
+
+
+	public OriLine remove(int index) {
+		return lines.remove(index);
+	}
+
+
+	public int indexOf(Object o) {
+		return lines.indexOf(o);
+	}
+
+
+	public int lastIndexOf(Object o) {
+		return lines.lastIndexOf(o);
+	}
+
+
+	public ListIterator<OriLine> listIterator() {
+		return lines.listIterator();
+	}
+
+
+	public ListIterator<OriLine> listIterator(int index) {
+		return lines.listIterator(index);
+	}
+
+
+	public List<OriLine> subList(int fromIndex, int toIndex) {
+		return lines.subList(fromIndex, toIndex);
+	}
+
 	private VerticesManager vertices;
 	
 	public CreasePattern(double paperSize) {
@@ -56,14 +116,6 @@ public class CreasePattern implements Collection<OriLine> {
 	@Override
 	public void clear() {
 		lines.clear();
-	}
-
-
-
-	@Override
-	public Object clone() {
-		// TODO Auto-generated method stub
-		return lines.clone();
 	}
 
 	@Override
@@ -149,5 +201,7 @@ public class CreasePattern implements Collection<OriLine> {
 	public VerticesManager getVerticesManager(){
 		return vertices;
 	}
+
+
 	
 }

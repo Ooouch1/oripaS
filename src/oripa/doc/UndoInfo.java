@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import oripa.geom.OriLine;
 
-public class UndoInfo {
+class UndoInfo {
     private ArrayList<OriLine> lines = new ArrayList<OriLine>();
 
     

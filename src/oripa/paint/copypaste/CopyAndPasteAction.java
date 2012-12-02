@@ -29,7 +29,8 @@ public class CopyAndPasteAction extends GraphicMouseAction {
 	@Override
 	public void recover(PaintContext context) {
 		originHolder.resetOrigin(context);
-		action = pasteAction;
+		// reset to paste
+		doSelectOrigin(false);
 		action.recover(context);
 	}
 	
@@ -93,12 +94,17 @@ public class CopyAndPasteAction extends GraphicMouseAction {
 	 * 
 	 * @param changingOrigin {@code true} for selecting origin, {@code false} for pasting.
 	 */
-	public void changeAction(boolean changingOrigin){
+	public void doSelectOrigin(boolean changingOrigin){
 		if(changingOrigin){
 			action = originAction;
 		}
 		else {
 			action = pasteAction;
+
+			/* *
+			 * TODO: create a buffered image of shifted lines 
+			 * by pasteAction's method
+			 * */
 		}
 	}
 	
@@ -106,14 +112,13 @@ public class CopyAndPasteAction extends GraphicMouseAction {
 	public Vector2d onMove(PaintContext context, AffineTransform affine,
 			boolean changingOrigin) {
 		
-		changeAction(changingOrigin);
+		doSelectOrigin(changingOrigin);
 		
 		return action.onMove(context, affine, changingOrigin);
 	}
 
 	@Override
 	public void onDraw(Graphics2D g2d, PaintContext context) {
-		// TODO Auto-generated method stub
 		action.onDraw(g2d, context);
 	}
 }

@@ -1,8 +1,6 @@
 package oripa.doc.core;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -102,24 +100,50 @@ public class VerticesManager {
 		getVertices(ap).remove(v);
 	}
 	
+	
+	private double prev_leftDiv, prev_rightDiv, 
+		prev_topDiv, prev_bottomDiv, prev_distance;
+	
+	private Collection<Collection<Vector2d>> prev_area;
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 * @param distance
+	 * @return
+	 */
 	public Collection<Collection<Vector2d>> getArea(
 			double x, double y, double distance){
 
-		Collection<Collection<Vector2d>> result = new LinkedList<>();		
 		
 		int leftDiv   = toDiv(x - distance);
 		int rightDiv  = toDiv(x + distance);
 		int topDiv    = toDiv(y - distance);
 		int bottomDiv = toDiv(y + distance);
+
+		if(prev_leftDiv == leftDiv && prev_rightDiv == rightDiv && prev_topDiv == topDiv && prev_bottomDiv == bottomDiv
+				&& prev_distance == distance){
+			return prev_area;
+		}
+
+		Collection<Collection<Vector2d>> area = new LinkedList<>();		
+
+		prev_leftDiv = leftDiv;
+		prev_rightDiv = rightDiv;
+		prev_topDiv = topDiv;
+		prev_bottomDiv = bottomDiv;
+		prev_distance = distance;
+		
 		
 		for(int xDiv = leftDiv; xDiv <= rightDiv; xDiv++){
 			for(int yDiv = topDiv; yDiv <= bottomDiv; yDiv++){
-				result.add(vertices[xDiv][yDiv]);
+				area.add(vertices[xDiv][yDiv]);
 			}
 		}
+
+		prev_area = area;
 		
-		
-		return result;
+		return area;
 	}
 	
 	public void load(Collection<OriLine> lines){

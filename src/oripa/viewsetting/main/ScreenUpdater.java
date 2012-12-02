@@ -44,7 +44,7 @@ public class ScreenUpdater extends ViewSettingDataBase {
 
 		if(action instanceof CopyAndPasteAction){
 			CopyAndPasteAction casted = (CopyAndPasteAction) action;
-			casted.changeAction(changeOrigin);
+			casted.doSelectOrigin(changeOrigin);
 
 			updateScreen();
 		}

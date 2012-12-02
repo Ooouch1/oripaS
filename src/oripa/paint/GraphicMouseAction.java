@@ -10,10 +10,8 @@ import java.awt.geom.Rectangle2D;
 import javax.vecmath.Vector2d;
 
 import oripa.Config;
-import oripa.ORIPA;
 import oripa.geom.OriLine;
 import oripa.paint.geometry.GeometricOperation;
-import oripa.viewsetting.main.MainScreenSettingDB;
 import oripa.viewsetting.main.ScreenUpdater;
 
 public abstract class GraphicMouseAction {

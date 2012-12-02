@@ -27,7 +27,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import oripa.doc.Doc;
-import oripa.doc.DocHolder;
 import oripa.resource.Constants;
 import oripa.resource.ResourceHolder;
 import oripa.resource.ResourceKey;
