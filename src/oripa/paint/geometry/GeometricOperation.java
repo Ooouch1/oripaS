@@ -7,10 +7,17 @@ import java.util.Collection;
 import javax.vecmath.Vector2d;
 
 import oripa.ORIPA;
+import oripa.concurrent.MultiInMultiOutProcessor;
+import oripa.doc.DocHolder;
 import oripa.doc.command.CalculationResource;
 import oripa.geom.GeomUtil;
 import oripa.geom.OriLine;
 import oripa.paint.PaintContext;
+import oripa.paint.geometry.nearest.line.NearestLine;
+import oripa.paint.geometry.nearest.line.NearestLineFinder;
+import oripa.paint.geometry.nearest.line.NearestLineProcessFactory;
+import oripa.paint.geometry.nearest.point.NearestPoint;
+import oripa.paint.geometry.nearest.point.NearestVertexFinder;
 
 
 /**
@@ -20,26 +27,24 @@ import oripa.paint.PaintContext;
  */
 public class GeometricOperation {
 
-	private static double scaleThreshold(PaintContext context){
+	private static double getScaledThresholdDistance(PaintContext context){
 		return CalculationResource.CLOSE_THRESHOLD / context.scale;
 	}
-	
+
+	private static double getScaledThresholdDistance(double scale){
+		return CalculationResource.CLOSE_THRESHOLD / scale;
+	}
+
 	
 	// returns the OriLine sufficiently closer to point p
 	public static OriLine pickLine(Point2D.Double p, double scale) {
-		double minDistance = Double.MAX_VALUE;
-		OriLine bestLine = null;
+		Vector2d point = new Vector2d(p.x, p.y);
+		NearestLineFinder finder = new NearestLineFinder();		
+		
+		NearestLine nearest = finder.find(point, ORIPA.doc.creasePattern);
 
-		for (OriLine line : ORIPA.doc.creasePattern) {
-			double dist = GeomUtil.DistancePointToSegment(new Vector2d(p.x, p.y), line.p0, line.p1);
-			if (dist < minDistance) {
-				minDistance = dist;
-				bestLine = line;
-			}
-		}
-
-		if (minDistance / scale < 10) {
-			return bestLine;
+		if (nearest.distance < getScaledThresholdDistance(scale)) {
+			return nearest.get();
 		} else {
 			return null;
 		}
@@ -53,7 +58,7 @@ public class GeometricOperation {
 		
 		NearestPoint nearestPosition;
 
-		nearestPosition = NearestVertexFinder.findAround(context, scaleThreshold(context));
+		nearestPosition = NearestVertexFinder.findAround(context, getScaledThresholdDistance(context));
 		
 
 		Vector2d picked = null;		
@@ -85,7 +90,7 @@ public class GeometricOperation {
 		
 
 		Vector2d picked = null; 
-		if (nearestPosition.distance < scaleThreshold(context)) {
+		if (nearestPosition.distance < getScaledThresholdDistance(context)) {
 			picked = nearestPosition.point;
 		}
 		
