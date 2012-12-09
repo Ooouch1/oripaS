@@ -27,7 +27,7 @@ public class NearestLineProcess extends MultiInProcess<OriLine, NearestLine> {
 	public NearestLine run(Collection<OriLine> values) {
 		NearestLine bestLine = new NearestLine();
 
-		for (OriLine line : ORIPA.doc.creasePattern) {
+		for (OriLine line : values) {
 			bestLine.update(target, line);
 		}
 
