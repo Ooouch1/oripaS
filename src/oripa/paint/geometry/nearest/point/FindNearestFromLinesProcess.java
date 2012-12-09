@@ -9,10 +9,10 @@ import oripa.concurrent.MultiInProcess;
 import oripa.geom.OriLine;
 
 class FindNearestFromLinesProcess extends MultiInProcess<OriLine, Vector2d>{
-	private Point2D.Double target;
+	private Vector2d target;
 	
 	public FindNearestFromLinesProcess(Point2D.Double p) {
-		target = p;
+		target = new Vector2d(p.x, p.y);
 	}
 	
 	@Override
@@ -21,11 +21,11 @@ class FindNearestFromLinesProcess extends MultiInProcess<OriLine, Vector2d>{
 
 		for (OriLine line : lines) {			
 
-			NearestPointUpdater.update(target, minPosition, line.p0);
-			NearestPointUpdater.update(target, minPosition, line.p1);
+			minPosition.update(target, line.p0);
+			minPosition.update(target, line.p1);
 			
 		}
 
-		return minPosition.point;
+		return minPosition.get();
 	}
 }

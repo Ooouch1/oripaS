@@ -17,8 +17,7 @@ import oripa.paint.EditMode;
 import oripa.paint.GraphicMouseAction;
 import oripa.paint.PaintContext;
 import oripa.paint.geometry.GeometricOperation;
-import oripa.paint.geometry.nearest.point.NearestPointUpdater;
-import oripa.paint.geometry.nearest.point.NearestVertexFinder;
+import oripa.paint.geometry.nearest.point.NearestPoint;
 
 public class PasteAction extends GraphicMouseAction {
 
@@ -125,11 +124,12 @@ public class PasteAction extends GraphicMouseAction {
 		}
 
 
-		Point2D.Double current = context.getLogicalMousePoint();
+		Vector2d current = new Vector2d(context.getLogicalMousePoint().x, context.getLogicalMousePoint().y);
 		if(closeVertex != null && closeVertexOfLines != null){
 			// get the nearest to current
-			closeVertex = NearestPointUpdater.update(
-					current, closeVertex, closeVertexOfLines);
+			NearestPoint nearest = new NearestPoint();
+			nearest.update(current, closeVertex);
+			nearest.update(current, closeVertexOfLines);
 
 		}
 

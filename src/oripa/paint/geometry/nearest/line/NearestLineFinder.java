@@ -11,10 +11,12 @@ import oripa.geom.OriLine;
 
 public class NearestLineFinder {
 
+	private static NearestLineProcessFactory factory = new NearestLineProcessFactory(null);
+	private static MultiInMultiOutProcessor<OriLine, NearestLine> processor = new MultiInMultiOutProcessor<>(factory);
 	
-	public NearestLine find(Vector2d target, List<OriLine> lines){
-		NearestLineProcessFactory factory = new NearestLineProcessFactory(target);
-		MultiInMultiOutProcessor<OriLine, NearestLine> processor = new MultiInMultiOutProcessor<>(factory);
+	public static NearestLine find(Vector2d target, List<OriLine> lines){
+		
+		factory.setTarget(target);
 		
 		Collection<NearestLine> candidates = null;
 
@@ -30,6 +32,8 @@ public class NearestLineFinder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
 		
 		return bestLine;
 	}

@@ -20,5 +20,9 @@ public class NearestLineProcessFactory implements MultiInProcessFactory<OriLine,
 		process.setTarget(target);
 		return process;
 	}
+	
+	public void setTarget(Vector2d target){
+		this.target = target;
+	}
 
 }

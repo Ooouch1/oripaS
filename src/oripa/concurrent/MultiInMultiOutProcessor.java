@@ -50,16 +50,20 @@ public class MultiInMultiOutProcessor<Value, Output> {
 		return execute(valueSets);
 	}
 
-
+	int divNum = -1;
+	ExecutorService executor;
 	public ArrayList<Output> execute(final Collection< Collection<Value> > valueSets) 
-				throws IllegalAccessException, InterruptedException, ExecutionException{
+				{
 
-		int divNum = valueSets.size();
+//		if(valueSets.size() > divNum){
+//			executor = Executors.newFixedThreadPool(valueSets.size());			
+//		}
+		divNum = valueSets.size();
+		executor = Executors.newFixedThreadPool(valueSets.size());			
 		
-		ArrayList<Output> result = new ArrayList<>(divNum);
-		ExecutorService executor = Executors.newFixedThreadPool(valueSets.size());
 		CompletionService<Output> completion = new ExecutorCompletionService<>(executor);
 
+		ArrayList<Output> result = new ArrayList<>(divNum);
 
 		try{
 			for(Collection<Value> valueSet : valueSets){

@@ -46,9 +46,10 @@ public class NearestVertexFinder {
 	private static NearestPoint findNearestVertex(Point2D.Double p, Collection<Vector2d> vertices){
 
 		NearestPoint minPosition = new NearestPoint();
+		Vector2d target = new Vector2d(p.x, p.y);
 
 		for(Vector2d vertex : vertices){
-			NearestPointUpdater.update(p, minPosition, vertex);
+			minPosition.update(target, vertex);
 		}
 
 		return minPosition;
@@ -58,7 +59,7 @@ public class NearestVertexFinder {
 	 * find the nearest of current mouse point in the circle whose radius = {@code distance}.
 	 * @param context
 	 * @param distance
-	 * @return nearestPoint in the limit. null if there are no such vertex.
+	 * @return nearestPoint in the limit. null if there is no such vertex.
 	 */
 	public static NearestPoint findAround(PaintContext context, double distance){
 		NearestPoint nearestPosition = new NearestPoint();
@@ -70,12 +71,7 @@ public class NearestVertexFinder {
 				currentPoint.x, currentPoint.y, distance);	
 	
 		for(Collection<Vector2d> locals : vertices){
-			NearestPoint nearest;
-			nearest = findNearestVertex(currentPoint, locals);
-	
-			if(nearest.distance < nearestPosition.distance){
-				nearestPosition = nearest;
-			}
+			nearestPosition.update(findNearestVertex(currentPoint, locals));
 		}
 
 		if (context.dispGrid) {
@@ -83,10 +79,7 @@ public class NearestVertexFinder {
 			NearestPoint nearestGrid = findNearestVertex(
 					currentPoint, context.updateGrids(Globals.gridDivNum));
 			
-			if(nearestGrid.distance < nearestPosition.distance){
-				nearestPosition = nearestGrid;
-			}
-			
+			nearestPosition.update(nearestGrid);			
 		}
 		
 		if (nearestPosition.distance >= distance) {

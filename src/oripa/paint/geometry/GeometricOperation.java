@@ -39,9 +39,8 @@ public class GeometricOperation {
 	// returns the OriLine sufficiently closer to point p
 	public static OriLine pickLine(Point2D.Double p, double scale) {
 		Vector2d point = new Vector2d(p.x, p.y);
-		NearestLineFinder finder = new NearestLineFinder();		
 		
-		NearestLine nearest = finder.find(point, ORIPA.doc.creasePattern);
+		NearestLine nearest = NearestLineFinder.find(point, ORIPA.doc.creasePattern);
 
 		if (nearest.distance < getScaledThresholdDistance(scale)) {
 			return nearest.get();
@@ -64,7 +63,7 @@ public class GeometricOperation {
 		Vector2d picked = null;		
 
 		if(nearestPosition != null){
-			picked = new Vector2d(nearestPosition.point);		
+			picked = new Vector2d(nearestPosition.get());		
 		}
 		
 		if(picked == null && freeSelection == true){
@@ -91,7 +90,7 @@ public class GeometricOperation {
 
 		Vector2d picked = null; 
 		if (nearestPosition.distance < getScaledThresholdDistance(context)) {
-			picked = nearestPosition.point;
+			picked = nearestPosition.get();
 		}
 		
 		return picked;

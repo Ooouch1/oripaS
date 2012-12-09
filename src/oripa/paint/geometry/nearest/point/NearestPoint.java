@@ -1,21 +1,31 @@
 package oripa.paint.geometry.nearest.point;
 
+import java.awt.geom.Point2D;
+
 import javax.vecmath.Vector2d;
 
-public class NearestPoint {
-	public Vector2d point = new Vector2d();
-	public double distance = Double.MAX_VALUE;
+import oripa.paint.geometry.nearest.NearestObject;
 
-	/**
-	 * distance is set to maximum. point is not null but dummy.
-	 */
+public class NearestPoint extends NearestObject<Vector2d>{
+
+/*	public NearestPoint(Point2D.Double p) {
+		object.set(p.x, p.y);		
+	}
+
+	*/
+	
 	public NearestPoint() {
+		object = new Vector2d();
 	}
 	
-	public NearestPoint(NearestPoint p) {
-		if(p != null){
-			point.set(p.point);
-			distance = p.distance;
-		}
+	@Override
+	public double calculateDistance(Vector2d target, Vector2d o) {
+		return Point2D.Double.distance(target.x, target.y, o.x, o.y);
+	}
+
+	@Override
+	public void set(Vector2d o) {
+		// TODO Auto-generated method stub
+		object.set(o.x, o.y);
 	}
 }
