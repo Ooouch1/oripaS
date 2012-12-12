@@ -4,9 +4,9 @@ import java.awt.geom.Point2D;
 
 import javax.vecmath.Vector2d;
 
-import oripa.concurrent.MultiInProcess;
-import oripa.concurrent.MultiInProcessFactory;
 import oripa.geom.OriLine;
+import oripa.util.concurrent.MultiInProcess;
+import oripa.util.concurrent.MultiInProcessFactory;
 
 class FindNearestFromLinesFactory implements MultiInProcessFactory<OriLine, Vector2d>{
 	private Point2D.Double target;

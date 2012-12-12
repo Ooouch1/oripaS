@@ -2,9 +2,9 @@ package oripa.paint.geometry.nearest.line;
 
 import javax.vecmath.Vector2d;
 
-import oripa.concurrent.MultiInProcessFactory;
-import oripa.concurrent.MultiInProcess;
 import oripa.geom.OriLine;
+import oripa.util.concurrent.MultiInProcess;
+import oripa.util.concurrent.MultiInProcessFactory;
 
 public class NearestLineProcessFactory implements MultiInProcessFactory<OriLine, NearestLine> {
 

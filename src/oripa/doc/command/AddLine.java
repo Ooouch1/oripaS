@@ -6,16 +6,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import javax.vecmath.Vector2d;
 
-import oripa.concurrent.MultiInMultiOutProcessor;
-import oripa.concurrent.MultiInProcess;
-import oripa.concurrent.MultiInProcessFactory;
 import oripa.geom.GeomUtil;
 import oripa.geom.OriLine;
+import oripa.util.LazyList;
+import oripa.util.concurrent.MultiInMultiOutProcessor;
+import oripa.util.concurrent.MultiInProcess;
+import oripa.util.concurrent.MultiInProcessFactory;
 
 public class AddLine {
 	class PointComparatorX implements Comparator<Vector2d> {
@@ -42,41 +41,100 @@ public class AddLine {
 
 
 	/**
-	 * Specified procedure for adding aux line.
+	 * Adds a new OriLine, also searching for intersections with others 
+	 * that would cause their mutual division
+	 * 
+	 * @param inputLine
+	 * @param currentLines	current line list. it will be affected as 
+	 * 						new lines are added and unnecessary lines are removed.
+	 */
+
+	public void addLine(OriLine inputLine, LazyList<OriLine> currentLines) {
+		//ArrayList<OriLine> crossingLines = new ArrayList<OriLine>(); // for debug? 
+
+		ArrayList<Vector2d> points = new ArrayList<>(currentLines.size());
+		points.add(inputLine.p0);
+		points.add(inputLine.p1);
+
+		// If it already exists, do nothing
+		for (OriLine line : currentLines) {
+			if (line.epsilonEquals(inputLine, CalculationResource.POINT_EPS_SQUARED)) {
+				return;
+			}
+		}
+
+		divideLines(inputLine, currentLines);
+		
+		MultiInProcessFactory<OriLine, Collection<Vector2d>> 
+				factory = new CrossPointProcessFactory(inputLine);
+
+		MultiInMultiOutProcessor<OriLine, Collection<Vector2d>> processor = new MultiInMultiOutProcessor<>(factory);
+
+		for(Collection<Vector2d> crossPoints : processor.execute(currentLines, 4) ){
+			points.addAll(crossPoints);
+		}
+			
+		
+		// the sort is done on longer direction in order to suppress underflow error???
+		boolean sortByX = Math.abs(inputLine.p0.x - inputLine.p1.x) > Math.abs(inputLine.p0.y - inputLine.p1.y);
+		if (sortByX) {
+			Collections.sort(points, new PointComparatorX());
+		} else {
+			Collections.sort(points, new PointComparatorY());
+		}
+
+		Vector2d prevPoint = points.get(0);
+
+		// add new lines sequentially
+		for (int i = 1; i < points.size(); i++) {
+			Vector2d p = points.get(i);
+			// remove very short line
+			if (GeomUtil.Distance(prevPoint, p) < CalculationResource.POINT_EPS) {
+				continue;
+			}
+
+			currentLines.add(new OriLine(prevPoint, p, inputLine.typeVal));
+			prevPoint = p;
+		}
+	}
+	
+	/**
+	 * Divides lines by inputed line.
 	 * @param inputLine
 	 * @param currentLines
-	 * @return true if the line is aux.
+	 * @return always true
 	 */
-	public boolean addAuxLine(OriLine inputLine, Collection<OriLine> currentLines){
-
-		if(inputLine.typeVal != OriLine.TYPE_NONE){
-			return false;
-		}
+	public boolean divideLines(OriLine inputLine, LazyList<OriLine> currentLines){
 
 		LinkedList<OriLine> toBeAdded = new LinkedList<>();
 
+		int i = 0;
 		// If it intersects other line, divide them
-		for (Iterator<OriLine> iterator = currentLines.iterator(); iterator.hasNext();) {
-			OriLine line = iterator.next();
+		while(i < currentLines.size()) {
+			OriLine line = currentLines.get(i);
 
 
 			// Inputed line does not intersect
-			if (line.typeVal != OriLine.TYPE_NONE) {
+			if (inputLine.typeVal == OriLine.TYPE_NONE && line.typeVal != OriLine.TYPE_NONE) {
+				i++;
 				continue;
 			}
 			Vector2d crossPoint = GeomUtil.getCrossPoint(inputLine, line);
 			if (crossPoint == null) {
+				i++;
 				continue;
 			}
 
-			iterator.remove();
+			i = currentLines.lazyRemove(i);
 
-			if (GeomUtil.Distance(line.p0, crossPoint) > CalculationResource.POINT_EPS) {
-				toBeAdded.add(new OriLine(line.p0, crossPoint, line.typeVal));
+			OriLine partialLine = createLine(line.p0, crossPoint, line.typeVal);
+			if(partialLine != null) {
+				toBeAdded.add(partialLine);
 			}
 
-			if (GeomUtil.Distance(line.p1, crossPoint) > CalculationResource.POINT_EPS) {
-				toBeAdded.add(new OriLine(line.p1, crossPoint, line.typeVal));
+			partialLine = createLine(line.p1, crossPoint, line.typeVal);
+			if(partialLine != null) {
+				toBeAdded.add(partialLine);
 			}
 
 			//crossingLines.add(line);
@@ -88,75 +146,18 @@ public class AddLine {
 
 		return true;
 	}
-
-	/**
-	 * Adds a new OriLine, also searching for intersections with others 
-	 * that would cause their mutual division
-	 * 
-	 * @param inputLine
-	 * @param currentLines	current line list. it will be affected as 
-	 * 						new lines are added and unnecessary lines are removed.
-	 */
-
-	public void addLine(OriLine inputLine, List<OriLine> currentLines) {
-		//ArrayList<OriLine> crossingLines = new ArrayList<OriLine>(); // for debug? 
-
-		ArrayList<Vector2d> points = new ArrayList<>(currentLines.size());
-		points.add(inputLine.p0);
-		points.add(inputLine.p1);
-
-		// If it already exists, do nothing
-		for (OriLine line : currentLines) {
-			if (GeomUtil.isSameLineSegment(line, inputLine)) {
-				return;
-			}
-		}
-
-		if (inputLine.typeVal == OriLine.TYPE_NONE){
-			// for the case of aux input
-			addAuxLine(inputLine, currentLines);
-		}
-		else{   
-			
-			MultiInProcessFactory<OriLine, Collection<Vector2d>> 
-					factory = new CrossPointProcessFactory(inputLine);
-
-			MultiInMultiOutProcessor<OriLine, Collection<Vector2d>> processor = new MultiInMultiOutProcessor<>(factory);
-
-			try {
-				for(Collection<Vector2d> crossPoints : processor.execute(currentLines, 4) ){
-					points.addAll(crossPoints);
-				}
-			} catch (IllegalAccessException	| InterruptedException | ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return;
-			}
+	
+	private OriLine createLine(Vector2d p0, Vector2d p1, int typeVal){
+		OriLine line = null;
+//		if (p0.epsilonEquals(p1, CalculationResource.POINT_EPS) == false) {
+		if(GeomUtil.DistanceSquared(p0, p1) > CalculationResource.POINT_EPS_SQUARED){
+			line = new OriLine(p0, p1, typeVal);
 		}
 		
-		// the sort is done on longer direction in order to suppress underflow error???
-		boolean sortByX = Math.abs(inputLine.p0.x - inputLine.p1.x) > Math.abs(inputLine.p0.y - inputLine.p1.y);
-		if (sortByX) {
-			Collections.sort(points, new PointComparatorX());
-		} else {
-			Collections.sort(points, new PointComparatorY());
-		}
-
-		Vector2d prePoint = points.get(0);
-
-		// add new lines sequentially
-		for (int i = 1; i < points.size(); i++) {
-			Vector2d p = points.get(i);
-			// remove very short line
-			if (GeomUtil.Distance(prePoint, p) < CalculationResource.POINT_EPS) {
-				continue;
-			}
-
-			currentLines.add(new OriLine(prePoint, p, inputLine.typeVal));
-			prePoint = p;
-		}
-
+		return line;
 	}
+	
+
 	
 	private class CrossPointProcessFactory implements MultiInProcessFactory<OriLine, Collection<Vector2d>> {
 		private OriLine inputLine;
@@ -193,17 +194,17 @@ public class AddLine {
 
 			for (OriLine line : lines) {
 
-				// Dont devide if the type of line is aux is Aux
-				if (//inputLine.typeVal != OriLine.TYPE_NONE && 
+				// Don't divide if the type of line is Aux
+				if (inputLine.typeVal != OriLine.TYPE_NONE && 
 						line.typeVal == OriLine.TYPE_NONE) {
 					continue;
 				}
 
 				// If the intersection is on the end of the line, skip
-				if (GeomUtil.Distance(inputLine.p0, line.p0) < CalculationResource.POINT_EPS ||
-						GeomUtil.Distance(inputLine.p0, line.p1) < CalculationResource.POINT_EPS||
-						GeomUtil.Distance(inputLine.p1, line.p0) < CalculationResource.POINT_EPS||
-						GeomUtil.Distance(inputLine.p1, line.p1) < CalculationResource.POINT_EPS) {
+				if (inputLine.p0.epsilonEquals(line.p0, CalculationResource.POINT_EPS_SQUARED) ||
+						inputLine.p0.epsilonEquals(line.p1, CalculationResource.POINT_EPS_SQUARED)||
+						inputLine.p1.epsilonEquals(line.p0, CalculationResource.POINT_EPS_SQUARED)||
+						inputLine.p1.epsilonEquals(line.p1, CalculationResource.POINT_EPS_SQUARED) ) {
 					continue;
 				}
 

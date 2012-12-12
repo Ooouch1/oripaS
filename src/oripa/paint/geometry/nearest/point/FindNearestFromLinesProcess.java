@@ -5,8 +5,9 @@ import java.util.Collection;
 
 import javax.vecmath.Vector2d;
 
-import oripa.concurrent.MultiInProcess;
 import oripa.geom.OriLine;
+import oripa.util.concurrent.MultiInProcess;
+
 
 class FindNearestFromLinesProcess extends MultiInProcess<OriLine, Vector2d>{
 	private Vector2d target;

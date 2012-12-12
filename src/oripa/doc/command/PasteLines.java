@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import oripa.geom.OriLine;
+import oripa.util.LazyArrayList;
+import oripa.util.LazyList;
 
 public class PasteLines {
 
@@ -16,7 +18,7 @@ public class PasteLines {
 	 * 						new lines are added and unnecessary lines are deleted.
 	 */
 	public void paste(
-			Collection<OriLine> toBePasted, Collection<OriLine> currentLines){
+			Collection<OriLine> toBePasted, LazyList<OriLine> currentLines){
 
 		//----------------------------------------------------------
 		// Find lines possible to cross to new lines.
@@ -24,11 +26,11 @@ public class PasteLines {
 		//----------------------------------------------------------
 		
 		Domain domain = new Domain(toBePasted);
-		List<OriLine> crossables = new ArrayList<>(currentLines.size());
-				
-		for(Iterator<OriLine> itrator = currentLines.iterator();
-				itrator.hasNext();){
-			OriLine line = itrator.next();
+		LazyList<OriLine> crossables = new LazyArrayList<>(currentLines.size());
+			
+		int i = 0;
+		while(i < currentLines.size()){
+			OriLine line = currentLines.get(i);
 
 			// skip lines with no intersection
 			if(line.p0.x < domain.left && line.p1.x < domain.left ||
@@ -39,7 +41,7 @@ public class PasteLines {
 			}
 			
 			crossables.add(line);
-			itrator.remove();
+			i = currentLines.lazyRemove(i);
 		}
 
 		//-----------------------------------------------

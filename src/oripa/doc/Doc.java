@@ -244,7 +244,7 @@ public class Doc {
 
 
 	// Turn the model over
-	public void filpAll() {
+	public void flipAll() {
 		Vector2d maxV = new Vector2d(-Double.MAX_VALUE, -Double.MAX_VALUE);
 		Vector2d minV = new Vector2d(Double.MAX_VALUE, Double.MAX_VALUE);
 		for (OriFace face : ORIPA.doc.faces) {

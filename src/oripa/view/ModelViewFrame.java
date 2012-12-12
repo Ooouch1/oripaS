@@ -121,7 +121,7 @@ implements ActionListener, AdjustmentListener, Observer{
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == menuItemFlip) {
-            ORIPA.doc.filpAll();
+            ORIPA.doc.flipAll();
             screen.repaint();
         } else if (e.getSource() == menuItemSlideFaces) {
             ORIPA.doc.setFacesOutline(menuItemSlideFaces.isSelected());

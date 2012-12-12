@@ -1,5 +1,6 @@
 package oripa.doc.core;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,8 +10,10 @@ import java.util.ListIterator;
 import javax.vecmath.Vector2d;
 
 import oripa.geom.OriLine;
+import oripa.util.LazyArrayList;
+import oripa.util.LazyList;
 
-public class CreasePattern implements List<OriLine> {
+public class CreasePattern implements LazyList<OriLine> {
 	
 
 	/**
@@ -18,11 +21,18 @@ public class CreasePattern implements List<OriLine> {
 	 */
 	private static final long serialVersionUID = -6919017534440930379L;
 
-	private List<OriLine> lines;
+	private LazyArrayList<OriLine> lines;
 	public boolean addAll(int index, Collection<? extends OriLine> c) {
 		return lines.addAll(index, c);
 	}
 
+	public CreasePattern(double paperSize) {
+		//lines = new ArrayList<>();
+		lines = new LazyArrayList<>();
+		
+		vertices = new VerticesManager(paperSize);
+	}
+	
 
 	public boolean equals(Object o) {
 		return lines.equals(o);
@@ -40,17 +50,8 @@ public class CreasePattern implements List<OriLine> {
 
 
 	public OriLine set(int index, OriLine element) {
+		vertices.removeLineVertices(this.get(index));
 		return lines.set(index, element);
-	}
-
-
-	public void add(int index, OriLine element) {
-		lines.add(index, element);
-	}
-
-
-	public OriLine remove(int index) {
-		return lines.remove(index);
 	}
 
 
@@ -80,11 +81,6 @@ public class CreasePattern implements List<OriLine> {
 
 	private VerticesManager vertices;
 	
-	public CreasePattern(double paperSize) {
-		lines = new LinkedList<>();
-		vertices = new VerticesManager(paperSize);
-	}
-	
 	
 	@Override
 	public boolean contains(Object o) {
@@ -99,19 +95,30 @@ public class CreasePattern implements List<OriLine> {
 
 	@Override
 	public boolean add(OriLine e) {
-		vertices.add(e.p0);
-		vertices.add(e.p1);
+		vertices.addLineVertices(e);
 		return lines.add(e);
+	}
+
+	public void add(int index, OriLine element) {
+		vertices.addLineVertices(element);
+		lines.add(index, element);
 	}
 
 	@Override
 	public boolean remove(Object o) {
-		OriLine l = (OriLine) o;
-		vertices.remove(l.p0);
-		vertices.remove(l.p1);
+		OriLine line = (OriLine) o;
+		vertices.removeLineVertices(line);
 
 		return lines.remove(o);
 	}
+	
+	public OriLine remove(int index) {
+		OriLine line = lines.get(index);
+		vertices.removeLineVertices(line);
+		
+		return lines.remove(index);
+	}
+
 
 	@Override
 	public void clear() {
@@ -152,8 +159,7 @@ public class CreasePattern implements List<OriLine> {
 	public boolean addAll(Collection<? extends OriLine> c) {
 		
 		for(OriLine line : c){
-			vertices.add(line.p0);
-			vertices.add(line.p1);
+			vertices.addLineVertices(line);
 		}
 		
 		return lines.addAll(c);
@@ -164,8 +170,7 @@ public class CreasePattern implements List<OriLine> {
 		
 		
 		for(OriLine line : (Collection<OriLine>)c){
-			vertices.remove(line.p0);
-			vertices.remove(line.p1);
+			vertices.removeLineVertices(line);
 		}
 		return lines.removeAll(c);
 	}
@@ -178,8 +183,7 @@ public class CreasePattern implements List<OriLine> {
 			//removes from this collection 
 			//all of its elements that are not contained in the specified collection c.
 			if(! collection.contains(line)){
-				vertices.remove(line.p0);
-				vertices.remove(line.p1);
+				vertices.removeLineVertices(line);
 				
 			}
 		}
@@ -200,6 +204,11 @@ public class CreasePattern implements List<OriLine> {
 
 	public VerticesManager getVerticesManager(){
 		return vertices;
+	}
+
+	@Override
+	public int lazyRemove(int index) {
+		return lines.lazyRemove(index);	
 	}
 
 

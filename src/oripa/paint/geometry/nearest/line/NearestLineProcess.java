@@ -4,10 +4,8 @@ import java.util.Collection;
 
 import javax.vecmath.Vector2d;
 
-import oripa.ORIPA;
-import oripa.concurrent.MultiInProcess;
-import oripa.geom.GeomUtil;
 import oripa.geom.OriLine;
+import oripa.util.concurrent.MultiInProcess;
 
 public class NearestLineProcess extends MultiInProcess<OriLine, NearestLine> {
 	private Vector2d target;

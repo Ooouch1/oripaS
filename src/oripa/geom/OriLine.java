@@ -75,8 +75,8 @@ public class OriLine {
 	
     public boolean selected;
     public int typeVal = TYPE_NONE;  // eventually unneeded
-    public Vector2d p0 = new Vector2d();
-    public Vector2d p1 = new Vector2d();
+    public Vertex p0 = new Vertex();
+    public Vertex p1 = new Vertex();
 
     public OriLine() {
     }
@@ -143,4 +143,16 @@ public class OriLine {
     public Line getLine() {
         return new Line(p0, new Vector2d(p1.x - p0.x, p1.y - p0.y));
     }
+
+    public boolean equals(OriLine line){
+    	return (p0.equals(line.p0) && p1.equals(line.p1) )||  
+     	       (p0.equals(line.p1) && p1.equals(line.p0));
+    	
+    }
+    
+    public boolean epsilonEquals(OriLine line, double eps_squared){
+    	return (p0.epsilonEquals(line.p0, eps_squared) && p1.epsilonEquals(line.p1, eps_squared) )||  
+    	       (p0.epsilonEquals(line.p1, eps_squared) && p1.epsilonEquals(line.p0, eps_squared));
+    }
+    
 }

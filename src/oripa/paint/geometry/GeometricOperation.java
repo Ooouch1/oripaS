@@ -7,15 +7,12 @@ import java.util.Collection;
 import javax.vecmath.Vector2d;
 
 import oripa.ORIPA;
-import oripa.concurrent.MultiInMultiOutProcessor;
-import oripa.doc.DocHolder;
 import oripa.doc.command.CalculationResource;
 import oripa.geom.GeomUtil;
 import oripa.geom.OriLine;
 import oripa.paint.PaintContext;
 import oripa.paint.geometry.nearest.line.NearestLine;
 import oripa.paint.geometry.nearest.line.NearestLineFinder;
-import oripa.paint.geometry.nearest.line.NearestLineProcessFactory;
 import oripa.paint.geometry.nearest.point.NearestPoint;
 import oripa.paint.geometry.nearest.point.NearestVertexFinder;
 

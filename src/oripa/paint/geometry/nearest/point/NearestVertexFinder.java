@@ -3,15 +3,14 @@ package oripa.paint.geometry.nearest.point;
 import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import javax.vecmath.Vector2d;
 
 import oripa.ORIPA;
-import oripa.concurrent.MultiInMultiOutProcessor;
 import oripa.geom.OriLine;
 import oripa.paint.Globals;
 import oripa.paint.PaintContext;
+import oripa.util.concurrent.MultiInMultiOutProcessor;
 
 public class NearestVertexFinder {
 	private static FindNearestFromLinesFactory factory = new FindNearestFromLinesFactory(null);
@@ -23,15 +22,10 @@ public class NearestVertexFinder {
 		factory.setTarget(p);
 
 		NearestPoint minPosition = null;
-		try {
-			Collection<Vector2d> nearestCandidates = processor.execute(lines, 4);
-			minPosition = findNearestVertex(p, nearestCandidates);
+
+		Collection<Vector2d> nearestCandidates = processor.execute(lines, 4);
+		minPosition = findNearestVertex(p, nearestCandidates);
 			
-		} catch (IllegalAccessException | InterruptedException
-				| ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		return minPosition;
 

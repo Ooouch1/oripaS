@@ -2,7 +2,7 @@ package oripa.doc.core;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.HashMap;
 
 import javax.vecmath.Vector2d;
 
@@ -10,7 +10,8 @@ import oripa.geom.OriLine;
 
 
 /**
- * For a fast access to vertex
+ * For a fast access to vertex.
+ * It has some BUG!! (it does not correspond to line information)
  * @author koji
  *
  */
@@ -56,7 +57,7 @@ public class VerticesManager {
 	}
 	
 	//[div_x][div_y]
-	private HashSet<Vector2d>[][] vertices = new HashSet[divNum][divNum];
+	private HashMap<Vector2d, Integer>[][] vertices = new HashMap[divNum][divNum];
 
 	
 	public VerticesManager(double paperSize) {
@@ -65,7 +66,7 @@ public class VerticesManager {
 		
 		for(int x = 0; x < divNum; x++){
 			for(int y = 0; y < divNum; y++){
-				vertices[x][y] = new HashSet<Vector2d>();
+				vertices[x][y] = new HashMap<>();
 			}
 		}
 		
@@ -79,25 +80,41 @@ public class VerticesManager {
 		}		
 	}
 	
-	private HashSet<Vector2d> getVertices(AreaPosition ap){
+	private HashMap<Vector2d, Integer> getVertices(AreaPosition ap){
 		return vertices[ap.x][ap.y];
 	}
 	
 	public void add(Vector2d v){
-		HashSet<Vector2d> vertices = getVertices(new AreaPosition(v));
+		HashMap<Vector2d, Integer> vertices = getVertices(new AreaPosition(v));
 
-		vertices.add(v);
-				
+		Integer count = vertices.get(v);
+		if(count == null){
+			count = new Integer(0);
+			vertices.put(v, count);
+		}
+		count++;
+		
 	}
 	
 	public Collection<Vector2d> getAround(Vector2d v){
 		AreaPosition ap = new AreaPosition(v);
-		return getVertices(ap);
+		return getVertices(ap).keySet();
 	}
 	
 	public void remove(Vector2d v){
 		AreaPosition ap = new AreaPosition(v);
-		getVertices(ap).remove(v);
+		
+		Integer count = getVertices(ap).get(v);
+		
+		if(count == null){
+			return;
+		}
+
+		count--;
+		
+		if(count <= 0){
+			getVertices(ap).remove(v);
+		}
 	}
 	
 	
@@ -126,7 +143,7 @@ public class VerticesManager {
 			return prev_area;
 		}
 
-		Collection<Collection<Vector2d>> area = new LinkedList<>();		
+		Collection<Collection<Vector2d>> area = new HashSet<>();		
 
 		prev_leftDiv = leftDiv;
 		prev_rightDiv = rightDiv;
@@ -137,7 +154,7 @@ public class VerticesManager {
 		
 		for(int xDiv = leftDiv; xDiv <= rightDiv; xDiv++){
 			for(int yDiv = topDiv; yDiv <= bottomDiv; yDiv++){
-				area.add(vertices[xDiv][yDiv]);
+				area.add(vertices[xDiv][yDiv].keySet());
 			}
 		}
 
@@ -155,5 +172,13 @@ public class VerticesManager {
 		
 	}
 	
+	public void addLineVertices(OriLine line){
+		this.add(line.p0);
+		this.add(line.p1);
+	}
 	
+	public void removeLineVertices(OriLine line){
+		this.remove(line.p0);
+		this.remove(line.p1);
+	}
 }
