@@ -22,7 +22,7 @@ public class NearestPointUpdater {
 		
 		double dist = p.distance(other.x, other.y);
 		if (dist < nearest.distance) {
-			nearest.point = other;
+			nearest.set(other);
 			nearest.distance = dist;
 		}
 		
@@ -32,7 +32,7 @@ public class NearestPointUpdater {
 			Point2D.Double p, Vector2d nearest, Vector2d other){
 		
 		NearestPoint nearestPoint = new NearestPoint();
-		nearestPoint.point = nearest;
+		nearestPoint.set(nearest);
 		nearestPoint.distance = p.distance(nearest.x, nearest.y);
 	
 		update(p, nearestPoint, other);
