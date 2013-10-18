@@ -1,3 +1,10 @@
+NOTICE
+=======
+
+**This project is now moved to the official ORIPA OSS project:
+https://github.com/oripa/oripa.**
+
+
 ORIPA S
 ======
 
